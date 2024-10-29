@@ -1,5 +1,7 @@
 package pbt
 
+import "core:log"
+
 ////
 // Lists
 
@@ -73,15 +75,18 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
                 }
 
                 key := draw(test_case, map_input.keys)
+                log.debugf("Draw map key: %v", key)
 
                 // A duplicate key will not add to the length of the map and run the risk
                 //  of making us stuck. Therefor, if we draw an existing key the test is invalid
                 if key in result {
+                    log.debug("Key is already in map")
                     test_case.status = .Invalid
                     break
                 }
                 
                 val := draw(test_case, map_input.vals)
+                log.debugf("Draw map value: %v", val)
 
                 result[key] = val
             }
