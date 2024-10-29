@@ -23,7 +23,7 @@ Test_Context :: struct {
     seed           : u64,
 }
 
-make_context :: proc(number_of_tests: u64 = 100, seed:u64 = 0, allocator := context.allocator) -> Test_Context {
+make_context :: proc(number_of_tests: u64 = 100, seed: u64 = 0, allocator := context.allocator) -> Test_Context {
     assert(number_of_tests > 0)
 
     new_seed: u64
@@ -43,6 +43,8 @@ make_context :: proc(number_of_tests: u64 = 100, seed:u64 = 0, allocator := cont
 }
 
 consider :: proc(tc: ^Test_Context, attempt: []u64) -> bool {
+    log.debugf("Consider attempt: %v", attempt)
+
     test := for_choices(attempt, context.temp_allocator)
         
     prop_res := tc.property(&test)
@@ -51,7 +53,7 @@ consider :: proc(tc: ^Test_Context, attempt: []u64) -> bool {
     
     // Property failed, so possible interesting
     if !prop_res && test.status != .Invalid {
-        log.debugf("Interesting test case found for attempt: %v", attempt)
+        log.debugf("Interesting test case found")
         test.status = .Interesting
         // Store the latest interesting data in the context
         delete(tc.result)
@@ -59,7 +61,7 @@ consider :: proc(tc: ^Test_Context, attempt: []u64) -> bool {
         delete(tc.report)
         tc.report = strings.clone(strings.to_string(test.report_builder))
     } else {
-        log.debugf("Test case passed for attempt: %v", attempt)
+        log.debugf("Test case passed")
         test.status = .Valid
     }
     
