@@ -1,6 +1,7 @@
 package shrinking_cases
 
 import "core:testing"
+import "core:log"
 
 import "../../pbt"
 
@@ -22,19 +23,17 @@ expect_equal_slices :: proc(t: ^testing.T, actual, expected: $T/[]$E) where intr
 @(test)
 maps_of_specific_key_value :: proc(t: ^testing.T) {
     specific_map_value := proc(test: ^pbt.Test_Case) -> bool {
-        min_size := pbt.draw(test, pbt.integers(0, 100))
-        range    := pbt.draw(test, pbt.integers(1, 100))
-        max_size := min_size + range
-        
         value := pbt.draw(
-            test, pbt.maps(pbt.strings_alpha_numeric(1, 50), pbt.integers(0, 255), min_size, max_size))
+            test, pbt.maps(pbt.strings_alpha_numeric(1, 2), pbt.integers(0, 255), 1, 5))
+
+        log.debugf("property called with: %v", value)
         
         pbt.make_test_report(test, "Failing example: %v", value)
                         
-        return value["a"] != 10
+        return !(value["a"] == 10)
     }
     
-    ctx := pbt.check_property(specific_map_value, DEFAULT_TEST_N)
+    ctx := pbt.check_property(specific_map_value, 1_000_000, 11041760626551297113)
 
     // The correct minimal example is map["a" = 10]
     testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
