@@ -11,8 +11,7 @@ Group_Info :: struct {
 }
 
 Recorded_Bits :: struct {
-    data: [dynamic]u64,
-    data_len: int,
+    data:   [dynamic]u64,
     groups: [dynamic]Group_Info,
 }
 
@@ -44,15 +43,6 @@ Random_Bit_Stream :: struct {
 Bit_Stream :: union {
     Buffered_Bit_Stream,
     Random_Bit_Stream,
-}
-
-record_bits :: proc(stream: ^Bit_Stream, bits: u64) {
-    switch &s in stream {
-    case Random_Bit_Stream:
-        append(&s.recorded.data, bits)
-    case Buffered_Bit_Stream:
-        append(&s.recorded.data, bits)
-    }
 }
 
 get_recorded :: proc(stream: Bit_Stream) -> Recorded_Bits {
@@ -95,38 +85,5 @@ draw_bits_random :: proc(s: ^Random_Bit_Stream, n_bits: int) -> u64 {
     append(&s.recorded.data, val)
     end_group(&s.recorded, group_id)
 
-    return val
-}
-
-draw_bits :: proc(stream: ^Bit_Stream, n_bits: int) -> u64 {
-    // TODO: there's loots of redundancey here that we would like to pull out.
-    //   Such as begin/end
-    assert(n_bits >= 0)
-
-    val: u64
-    switch &s in stream {
-    case Buffered_Bit_Stream: {
-        group_id := begin_group(&s.recorded, "fix the label")
-
-        // TODO: this should reject the test case?
-        if len(s.buffer) == 0 {
-            return 0
-        }
-        
-        current := pop_front(&s.buffer)
-        mask := (u64(1) << u64(n_bits)) - 1
-        val = current & mask
-        record_bits(stream, val)
-        end_group(&s.recorded, group_id)
-    }
-    case Random_Bit_Stream: {
-        group_id := begin_group(&s.recorded, "fix the other label")
-        mask := (u64(1) << u64(n_bits)) - 1
-        val = rand.uint64() & mask
-        record_bits(stream, val)
-        end_group(&s.recorded, group_id)
-    }
-    }
-    
     return val
 }
