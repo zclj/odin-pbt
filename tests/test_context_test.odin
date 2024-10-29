@@ -14,9 +14,10 @@ make_default_context :: proc(t: ^testing.T) {
 
 @(test)
 make_context :: proc(t: ^testing.T) {
-    ctx := pbt.make_context(34)
+    ctx := pbt.make_context(34, 123)
 
     testing.expect_value(t, ctx.test_n, 34)
+    testing.expect_value(t, ctx.seed, 123)
 }
 
 @(test)
