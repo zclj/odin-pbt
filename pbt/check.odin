@@ -4,8 +4,8 @@ import "core:fmt"
 import "core:slice"
 import "core:log"
 
-check_property :: proc(property: Property, number_of_tests: u64 = 100) -> Test_Context {
-    tc := make_context(number_of_tests)
+check_property :: proc(property: Property, number_of_tests: u64 = 100, seed: u64 = 0) -> Test_Context {
+    tc := make_context(number_of_tests, seed)
     tc.property = property
 
     check(&tc)
@@ -18,7 +18,7 @@ check :: proc(tc: ^Test_Context) {
     assert(tc.test_n > 0)
     assert(tc.tests_passed == 0)
 
-    log.infof("Start Checking property, number of tests: %v", tc.test_n)
+    log.infof("Start Checking property, number of tests: %v (seed: %v)", tc.test_n, tc.seed)
         
     passed := true
     for n in 0..<tc.test_n {
