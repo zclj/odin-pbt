@@ -150,6 +150,8 @@ forced_choice :: proc(test: ^Test_Case, n: u64) -> u64{
         return 0
     }
 
-    append(&test.choices.recorded.data, n)
+    // TODO: If forced choices should be stored, they need to be better aligned
+    //  with the prefix/shrinking
+    //append(&test.choices.recorded.data, n)
     return n
 }
