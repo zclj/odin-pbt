@@ -66,21 +66,36 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
             result := make(map[T]V, context.temp_allocator)
             for {
                 if len(result) < int(map_input.min_size) {
+                    log.debugf("Force draw map entry, min size")
                     forced_choice(test_case, 1)
                 } else if len(result) + 1 >= int(map_input.max_size) {
+                    log.debugf("Force stop draw map entry, max size")
                     forced_choice(test_case, 0)
                     break
                 } else if !weighted(test_case, 0.9) {
+                    log.debugf("Weighted stop draw map entry")
                     break
                 }
 
-                key := draw(test_case, map_input.keys)
-                log.debugf("Draw map key: %v", key)
-
                 // A duplicate key will not add to the length of the map and run the risk
-                //  of making us stuck. Therefor, if we draw an existing key the test is invalid
-                if key in result {
-                    log.debug("Key is already in map")
+                //  of making us stuck. Therefor, if we cannot draw a non-existing key
+                //  the test is invalid.
+                key: T
+                new_key_found: bool
+                for _ in 0..<4 {
+                    key_candidate := draw(test_case, map_input.keys)
+                    log.debugf("Draw map key: %v", key_candidate)
+
+                    exists := key_candidate in result
+                    if !exists {
+                        key = key_candidate
+                        new_key_found = true
+                        break
+                    }
+                }
+
+                if !new_key_found {
+                    log.debug("Cannot draw key not already in map")
                     test_case.status = .Invalid
                     break
                 }
