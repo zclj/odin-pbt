@@ -7,7 +7,7 @@ STREAM_SIZE :: 32
 Group_Info :: struct {
     begin: int,
     end: int,
-    //label: string,
+    label_id: Label_Id,
 }
 
 Recorded_Bits :: struct {
@@ -15,20 +15,38 @@ Recorded_Bits :: struct {
     groups: [dynamic]Group_Info,
 }
 
-Group_Id :: distinct int
+Group_Id :: distinct u32
+Label_Id :: distinct u32
 
-// TODO: Add support for groups
-begin_group :: proc(recorded: ^Recorded_Bits, label: string) -> Group_Id {
-    // append(&recorded.groups, Group_Info {
-    //     begin = len(recorded.data),
-    //     //label = label,
-    // })
+begin_group :: proc(recorded: ^Recorded_Bits, label_id: Label_Id = 0) -> Group_Id {
+    append(&recorded.groups, Group_Info {
+        begin    = len(recorded.data),
+        label_id = label_id,
+    })
 
     return Group_Id(len(recorded.groups) - 1)
 }
 
 end_group :: proc(recorded: ^Recorded_Bits, gid: Group_Id) {
-    //recorded.groups[gid].end = len(recorded.data)
+    recorded.groups[gid].end = len(recorded.data)
+}
+
+get_group :: proc(recorded: Recorded_Bits, gid: Group_Id) -> Group_Info {
+    if int(gid) < len(recorded.groups) {
+        return recorded.groups[gid]
+    }
+
+    return Group_Info {}
+}
+
+get_group_bits :: proc(recorded: Recorded_Bits, gid: Group_Id) -> []u64 {
+    if int(gid) >= len(recorded.groups) {
+        return {}
+    }
+
+    group := recorded.groups[gid]
+
+    return recorded.data[group.begin:group.end]
 }
 
 Buffered_Bit_Stream :: struct {
@@ -59,31 +77,25 @@ get_recorded :: proc(stream: Bit_Stream) -> Recorded_Bits {
 
 draw_bits_buffered :: proc(s: ^Buffered_Bit_Stream, n_bits: int) -> u64 {
     val: u64
-    
-    group_id := begin_group(&s.recorded, "fix the label")
 
     if len(s.buffer) == 0 {
         panic("Tried to draw bits from an empty buffer")
     }
-        
+
     current := pop_front(&s.buffer)
     mask := (u64(1) << u64(n_bits)) - 1
     val = current & mask
     append(&s.recorded.data, val)
-    
-    end_group(&s.recorded, group_id)
 
     return val
 }
 
 draw_bits_random :: proc(s: ^Random_Bit_Stream, n_bits: int) -> u64 {
     val: u64
-    
-    group_id := begin_group(&s.recorded, "fix the other label")
+
     mask := (u64(1) << u64(n_bits)) - 1
     val = rand.uint64() & mask
     append(&s.recorded.data, val)
-    end_group(&s.recorded, group_id)
 
     return val
 }
