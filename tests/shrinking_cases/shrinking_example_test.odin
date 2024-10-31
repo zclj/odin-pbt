@@ -35,10 +35,13 @@ maps_of_specific_key_value :: proc(t: ^testing.T) {
     
     ctx := pbt.check_property(specific_map_value, 1_000_000, 11041760626551297113)
 
+    // Shrink start
+    //  [1, 1, 10, 0, 227, 1, 1, 36, 0, 10, 1, 1, 40, 0, 96, 0]
+
     // The correct minimal example is map["a" = 10]
     testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
     testing.expect_value(t, ctx.failed, true)
-    
+    expect_equal_slices(t, ctx.failed_with[:], []u64{})
     expect_equal_slices(t, ctx.result[:], []u64{1, 0, 1, 67, 10})
 }
 

@@ -1,6 +1,6 @@
 package pbt
 
-import "core:log"
+//import "core:log"
 
 ////
 // Lists
@@ -69,14 +69,14 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
             defer end_choice_group(test_case, map_group_id)
             for {
                 if len(result) < int(map_input.min_size) {
-                    log.debugf("Force draw map entry, min size")
+                    //log.debugf("Force draw map entry, min size")
                     forced_choice(test_case, 1)
                 } else if len(result) + 1 >= int(map_input.max_size) {
-                    log.debugf("Force stop draw map entry, max size")
+                    //log.debugf("Force stop draw map entry, max size")
                     forced_choice(test_case, 0)
                     break
                 } else if !weighted(test_case, 0.9) {
-                    log.debugf("Weighted stop draw map entry")
+                    //log.debugf("Weighted stop draw map entry")
                     break
                 }
 
@@ -87,7 +87,7 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
                 new_key_found: bool
                 for _ in 0..<4 {
                     key_candidate := draw(test_case, map_input.keys)
-                    log.debugf("Draw map key: %v", key_candidate)
+                    //log.debugf("Draw map key: %v", key_candidate)
 
                     exists := key_candidate in result
                     if !exists {
@@ -98,13 +98,13 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
                 }
 
                 if !new_key_found {
-                    log.debug("Cannot draw key not already in map")
+                    //log.debug("Cannot draw key not already in map")
                     test_case.status = .Invalid
                     break
                 }
                 
                 val := draw(test_case, map_input.vals)
-                log.debugf("Draw map value: %v", val)
+                //log.debugf("Draw map value: %v", val)
 
                 result[key] = val
             }

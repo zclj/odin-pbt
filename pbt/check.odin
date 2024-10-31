@@ -37,7 +37,10 @@ check :: proc(tc: ^Test_Context) {
             // Test case was valid and all the property passed
             tc.tests_passed += 1
         } else if !passed && !rejected{
-            // Test case failed, move on to shrinking
+            // Test case failed, move on to shrinking.
+            // TODO: Keep the original failed data
+            // tc.failed_with = slice.clone_to_dynamic(test.choices.recorded.data[:])
+            // Setup the best result for shrinking
             tc.result = slice.clone_to_dynamic(test.choices.recorded.data[:])
             tc.failed = true
         }

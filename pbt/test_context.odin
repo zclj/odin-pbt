@@ -21,6 +21,7 @@ Test_Context :: struct {
     tests_passed   : u64,
     tests_rejected : u64,
     seed           : u64,
+    failed_with    : [dynamic]u64,
 }
 
 make_context :: proc(number_of_tests: u64 = 100, seed: u64 = 0, allocator := context.allocator) -> Test_Context {
@@ -50,6 +51,8 @@ consider :: proc(tc: ^Test_Context, attempt: []u64) -> bool {
     prop_res := tc.property(&test)
 
     log.debugf("Status of considered test case: %v", test.status)
+
+    log.debugf(make_groups_report(&test))
     
     // Property failed, so possible interesting
     if !prop_res && test.status != .Invalid {
