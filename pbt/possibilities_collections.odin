@@ -64,6 +64,9 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
         input   = map_input,
         produce = proc(test_case: ^Test_Case, map_input: Maps(I, T, U, V)) -> map[T]V {
             result := make(map[T]V, context.temp_allocator)
+
+            map_group_id := begin_choice_group(test_case, .Map)
+            defer end_choice_group(test_case, map_group_id)
             for {
                 if len(result) < int(map_input.min_size) {
                     log.debugf("Force draw map entry, min size")

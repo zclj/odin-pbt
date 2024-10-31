@@ -31,6 +31,9 @@ integers :: proc(minimum: i64, maximum: i64) -> Possibility(Integers, u64) {
     pos := Possibility(Integers, u64) {
         input = ints,
         produce = proc(test_case: ^Test_Case, ints: Integers) -> u64 {
+            group_id := begin_choice_group(test_case, .Integer)
+            defer end_choice_group(test_case, group_id)
+
             offset := choice(test_case, ints.range)
             return u64(ints.minimum) + offset
         },
@@ -211,6 +214,9 @@ strings_alpha_numeric :: proc(min_size: u64, max_size: u64) -> Possibility(Strin
         produce = proc(test_case: ^Test_Case, str: Strings_AN) -> string {
             builder := strings.builder_make(context.temp_allocator)
             rune_count: u64
+
+            group_id := begin_choice_group(test_case, .String)
+            defer end_choice_group(test_case, group_id)
             
             for {
                 if rune_count < str.min_size {

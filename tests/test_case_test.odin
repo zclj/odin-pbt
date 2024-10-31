@@ -59,3 +59,31 @@ choice_with_prefix :: proc(t: ^testing.T) {
     testing.expect_value(t, len(test.prefix.buffer), 0)
     testing.expect_value(t, len(test.choices.recorded.data), 2)
 }
+
+////
+// Groups
+
+// NOTE: For now, just use this as a check view of the report. Make it into a real
+//  test when the API is stable
+
+// import "core:log"
+
+// @(test)
+// groups :: proc(t: ^testing.T) {
+//     maps_group := proc(test: ^pbt.Test_Case) -> bool {
+//         pbt.draw(
+//             test, pbt.maps(
+//                 pbt.strings_alpha_numeric(1, 50),
+//                 pbt.integers(0, 255),
+//                 1, 10))
+
+//         report := pbt.make_groups_report(test)
+//         log.debug(report)
+                        
+//         return true
+//     }
+
+//     pbt.check_property(maps_group, 1, 6192458635858152428)
+    
+//     testing.expect_value(t, 0, 1)
+// }

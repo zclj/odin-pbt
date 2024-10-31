@@ -137,3 +137,22 @@ begin_and_end_marks_groups :: proc(t: ^testing.T) {
     // Group 2 data is same as drawn
     expect_equal_slices(t, group_2_data, []u64{draw_3})
 }
+
+@(test)
+group_operations_are_zii :: proc(t: ^testing.T) {
+    recorded := pbt.Recorded_Bits {
+        data = make([dynamic]u64, context.temp_allocator) }
+    stream := pbt.Random_Bit_Stream {
+        recorded = recorded,
+    }
+    defer delete(stream.recorded.groups)
+
+    // Getting groups outside of index
+    group_outside := pbt.get_group(stream.recorded, pbt.Group_Id(3))
+
+    // Getting bits for non-existing group
+    group_bits := pbt.get_group_bits(stream.recorded, pbt.Group_Id(3))
+
+    testing.expect_value(t, group_outside, pbt.Group_Info {})
+    expect_equal_slices(t, group_bits, []u64{})
+}
