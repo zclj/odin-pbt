@@ -65,6 +65,8 @@ create_test :: proc(max_size: int = BUFFER_SIZE, allocator := context.temp_alloc
 Group_Label :: enum u8 {
     None,
     Choice,
+    Weighted,
+    Forced,
     Integer,
     String,
     Map,
@@ -81,11 +83,14 @@ end_choice_group :: proc(test: ^Test_Case, group_id: Group_Id) {
 group_label_to_string :: proc(label: Group_Label) -> string {
     label_str: string
 
+    // TODO: if this keeps beeing 1-1, use reflection instead
     switch label {
     case .None: label_str = "None"
     case .Choice: label_str = "Choice"
     case .Integer: label_str = "Integer"
     case .String: label_str = "String"
+    case .Weighted: label_str = "Weighted"
+    case .Forced: label_str = "Forced"
     case .Map: label_str = "Map"
     }
 
@@ -178,6 +183,9 @@ choice :: proc(test: ^Test_Case, n: u64) -> u64 {
 
 // Return 'True' with probability 'p'
 weighted :: proc(test: ^Test_Case, p: f32) -> bool {
+    group_id := begin_choice_group(test, .Weighted)
+    defer end_choice_group(test, group_id)
+
     if len(test.choices.recorded.data) >= test.max_size {
         test.status = .Overrun
         return false
@@ -213,6 +221,9 @@ weighted :: proc(test: ^Test_Case, p: f32) -> bool {
 // Add 'n' to the choice sequence, as if it was drawn.
 // TODO: Consider draw bits and group recording.
 forced_choice :: proc(test: ^Test_Case, n: u64) -> u64{
+    group_id := begin_choice_group(test, .Forced)
+    defer end_choice_group(test, group_id)
+
     if bits.len_u64(n) > 64 || n < 0 {
         panic("Forcing choice of invalid argument")
     }
