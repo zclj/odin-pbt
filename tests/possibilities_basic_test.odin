@@ -138,7 +138,7 @@ integers_negative_min_max :: proc(t: ^testing.T) {
         pbt.make_test_report(
             test, "Min: %v, Max: %v, Value: %v", minimum, maximum, value)
         
-        return i64(value) < 0
+        return i8(value) <= -2 && i8(value) >= -56
     }
     
     tc := pbt.check_property(values_are_between_min_max, DEFAULT_TEST_N)
