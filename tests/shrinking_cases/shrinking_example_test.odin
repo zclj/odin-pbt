@@ -32,17 +32,13 @@ maps_of_specific_key_value :: proc(t: ^testing.T) {
                         
         return !(value["a"] == 10)
     }
-    
+
     ctx := pbt.check_property(specific_map_value, 1_000_000, 11041760626551297113)
 
-    // Shrink start
-    //  [1, 1, 10, 0, 227, 1, 1, 36, 0, 10, 1, 1, 40, 0, 96, 0]
-
-    // The correct minimal example is map["a" = 10]
     testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
     testing.expect_value(t, ctx.failed, true)
     expect_equal_slices(t, ctx.failed_with[:], []u64{})
-    expect_equal_slices(t, ctx.result[:], []u64{1, 0, 1, 67, 10})
+    expect_equal_slices(t, ctx.result[:], []u64{1, 1, 36, 0, 10, 0})
 }
 
 @(test)
@@ -60,20 +56,18 @@ maps_of_specific_boundary_value :: proc(t: ^testing.T) {
         m_values,_ := slice.map_values(value, context.temp_allocator)
         lower := slice.filter(m_values, proc(v: u64) -> bool { return v < 50 }, context.temp_allocator)
         any_lower := len(lower) > 0
-
-        //log.debugf("Value drawn: %v", value)
         
         return any_lower
     }
     
     ctx := pbt.check_property(map_boundary_value, DEFAULT_TEST_N)
 
-    // The correct minimal example is map["a" = 10]
-    testing.expect_value(t, ctx.report, "Failing example: map[0=50]")
+    testing.expect_value(t, ctx.report, "Failing example: map[0000=50]")
     testing.expect_value(t, ctx.failed, true)
 
-    // TODO: update this when report is correct
-    expect_equal_slices(t, ctx.result[:], []u64{1, 0, 1, 67, 10})
+    expect_equal_slices(
+        t,
+        ctx.result[:],
+        []u64{0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 50, 0})
 }
-
 

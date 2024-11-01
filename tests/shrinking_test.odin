@@ -23,6 +23,30 @@ shrink_remove_blocks :: proc(t: ^testing.T) {
 }
 
 @(test)
+shrink_remove_blocks_container_example :: proc(t: ^testing.T) {
+    property := proc(tc: ^pbt.Test_Case) -> bool {
+        attempt := tc.prefix.buffer
+        return !(len(attempt) == 6 &&
+                 attempt[0] == 1 &&   // <- Map forced to 1
+                 attempt[1] == 1 &&   // <- String forced to 1
+                 attempt[2] == 36 &&  // <- String element choice
+                 attempt[3] == 0 &&   // <- String forced to 0
+                 attempt[4] == 10 &&  // <- Key choice
+                 attempt[5] == 0)     // <- Weighted stop for map keys
+    }
+
+    tc := pbt.make_context()
+    tc.property = property
+    tc.result   = {1, 1, 0, 0, 0, 1, 1, 36, 0, 10, 0}
+
+    pbt.shrink_remove_blocks(&tc)
+    defer delete(tc.result)
+
+    expect_equal_slices(t, tc.result[:], []u64{1, 1, 36, 0, 10, 0})
+}
+
+
+@(test)
 shrink_zero_blocks :: proc(t: ^testing.T) {
     fail_first_zero := proc(tc: ^pbt.Test_Case) -> bool {
         attempt := tc.prefix.buffer

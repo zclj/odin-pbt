@@ -13,7 +13,7 @@ check_passing_property :: proc(t: ^testing.T) {
     property_fn := proc(test: ^pbt.Test_Case) -> bool {
         value := pbt.draw(test, u8s())
 
-        return value > 0
+        return value >= 0
     }
 
     tc := pbt.make_context()
@@ -36,7 +36,7 @@ check_respects_number_of_tests :: proc(t: ^testing.T) {
     property_fn := proc(test: ^pbt.Test_Case) -> bool {
         value := pbt.draw(test, u8s())
 
-        return value > 0
+        return value >= 0
     }
 
     tc := pbt.make_context()
@@ -47,6 +47,7 @@ check_respects_number_of_tests :: proc(t: ^testing.T) {
     expected := []u64{}
     actual   := tc.result[:]
 
+    testing.expect_value(t, u64(100), tc.tests_passed)
     expect_equal_slices(t, actual, expected)
 
     delete(tc.result)
@@ -172,7 +173,7 @@ lists_property :: proc(t: ^testing.T) {
         
     pbt.check(&tc)
 
-    expected := []u64{1, 0, 1, 0, 1, 0, 1, 0, 1, 10, 1}
+    expected := []u64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 10, 0}
     actual   := tc.result[:]
 
     expect_equal_slices(t, actual, expected)

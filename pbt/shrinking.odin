@@ -53,12 +53,12 @@ shrink :: proc(tc: ^Test_Context) {
 }
 
 shrink_remove_blocks :: proc(tc: ^Test_Context) {
-    sizes :[4]int = {8, 4, 2, 1}
+    sizes :[6]int = {8, 6, 5, 4, 2, 1}
 
     for size in sizes {
         combos := index_combinations(0, len(tc.result) + 1, size)
         defer delete(combos)
-        
+
         #reverse for combo in combos {
             new_attempt := slice.clone_to_dynamic(tc.result[:])
             defer delete(new_attempt)

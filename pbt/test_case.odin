@@ -233,14 +233,15 @@ forced_choice :: proc(test: ^Test_Case, n: u64) -> u64{
         return 0
     }
 
-    // TODO: If forced choices should be stored, they need to be better aligned
-    //  with the prefix/shrinking
     if len(test.prefix.buffer) > 0 {
-        // Pop the prefix, but force the value
-        draw_bits_buffered(&test.prefix, bits.len_u64(n))
-        append(&test.choices.recorded.data, n)
-    } else {
-        append(&test.choices.recorded.data, n)
+        // Pop the prefix, and fail if the value is not the forced choice
+        prefix := draw_bits_buffered(&test.prefix, bits.len_u64(n))
+        if prefix != n {
+            test.status = .Invalid
+            return n
+        }
     }
+
+    append(&test.choices.recorded.data, n)
     return n
 }
