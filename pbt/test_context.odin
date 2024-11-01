@@ -55,7 +55,7 @@ consider :: proc(tc: ^Test_Context, attempt: []u64) -> bool {
     log.debugf(make_groups_report(&test))
     
     // Property failed, so possible interesting
-    if !prop_res && test.status != .Invalid {
+    if !prop_res && test.status != .Invalid && test.status != .Overrun {
         log.debugf("Interesting test case found")
         test.status = .Interesting
         // Store the latest interesting data in the context
