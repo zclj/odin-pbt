@@ -66,10 +66,7 @@ with_report :: proc(t: ^testing.T) {
 
     tc := pbt.make_context()
     tc.property = property_fn
-    defer {
-        delete(tc.report)
-        delete(tc.result)
-    }
+    defer pbt.delete_context(tc)
     
     pbt.check(&tc)
 

@@ -34,11 +34,15 @@ maps_of_specific_key_value :: proc(t: ^testing.T) {
     }
 
     ctx := pbt.check_property(specific_map_value, 1_000_000, 11041760626551297113)
+    defer pbt.delete_context(ctx)
 
     testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
     testing.expect_value(t, ctx.failed, true)
-    expect_equal_slices(t, ctx.failed_with[:], []u64{})
     expect_equal_slices(t, ctx.result[:], []u64{1, 1, 36, 0, 10, 0})
+
+    // Make sure we don't make shrinking worse
+    testing.expect_value(t, ctx.shrinking_iterations, 2)
+    testing.expect_value(t, ctx.considered_attempts, 191)
 }
 
 @(test)
@@ -60,7 +64,8 @@ maps_of_specific_boundary_value :: proc(t: ^testing.T) {
         return any_lower
     }
     
-    ctx := pbt.check_property(map_boundary_value, DEFAULT_TEST_N)
+    ctx := pbt.check_property(map_boundary_value, DEFAULT_TEST_N, 8359183825713645891)
+    defer pbt.delete_context(ctx)
 
     testing.expect_value(t, ctx.report, "Failing example: map[0000=50]")
     testing.expect_value(t, ctx.failed, true)
@@ -69,5 +74,9 @@ maps_of_specific_boundary_value :: proc(t: ^testing.T) {
         t,
         ctx.result[:],
         []u64{0, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 50, 0})
+
+    // Make sure we don't make shrinking worse
+    testing.expect_value(t, ctx.shrinking_iterations, 4)
+    testing.expect_value(t, ctx.considered_attempts, 1114)
 }
 

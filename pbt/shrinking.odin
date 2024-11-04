@@ -4,11 +4,14 @@ import "core:slice"
 import "core:log"
 
 shrink :: proc(tc: ^Test_Context) {
+    assert(tc.shrinking_iterations == 0)
+
     improved := true
 
     prev: [dynamic]u64
     
     for improved {
+        tc.shrinking_iterations += 1
         improved = false
         prev = slice.clone_to_dynamic(tc.result[:])
         

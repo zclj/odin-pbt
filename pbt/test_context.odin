@@ -5,6 +5,7 @@ import "core:strings"
 import "core:fmt"
 import "core:math/rand"
 import "core:log"
+import "core:time"
 
 ////////////////////////////////////////
 // Test Context
@@ -12,16 +13,20 @@ import "core:log"
 Property :: distinct proc(tc: ^Test_Case) -> bool
 
 Test_Context :: struct {
-    draws_count    : int,
-    property       : Property,
-    result         : [dynamic]u64,
-    report         : string,
-    failed         : bool,
-    test_n         : u64,
-    tests_passed   : u64,
-    tests_rejected : u64,
-    seed           : u64,
-    failed_with    : [dynamic]u64,
+    draws_count          : int,
+    property             : Property,
+    result               : [dynamic]u64,
+    report               : string,
+    failed               : bool,
+    test_n               : u64,
+    tests_passed         : u64,
+    tests_rejected       : u64,
+    seed                 : u64,
+    failed_report        : string,
+    generation_duration  : time.Duration,
+    shrinking_duration   : time.Duration,
+    shrinking_iterations : u64,
+    considered_attempts  : u64,
 }
 
 make_context :: proc(number_of_tests: u64 = 100, seed: u64 = 0, allocator := context.allocator) -> Test_Context {
@@ -43,7 +48,14 @@ make_context :: proc(number_of_tests: u64 = 100, seed: u64 = 0, allocator := con
     }
 }
 
+delete_context :: proc(tc: Test_Context) {
+    delete(tc.result)
+    delete(tc.report)
+    delete(tc.failed_report)
+}
+
 consider :: proc(tc: ^Test_Context, attempt: []u64) -> bool {
+    tc.considered_attempts += 1
     log.debugf("Consider attempt: %v", attempt)
 
     test := for_choices(attempt, context.temp_allocator)
@@ -79,10 +91,20 @@ build_report :: proc(tc: Test_Context, allocator := context.allocator) -> string
     if tc.failed {
         strings.write_string(&builder, "Test failed\n")
         fmt.sbprintfln(&builder, "Seed: %v", tc.seed)
+        if len(tc.failed_report) > 0 {
+            fmt.sbprintfln(&builder, "Failed Report : %v", tc.failed_report)
+        }
         if len(tc.report) > 0 {
-            fmt.sbprintfln(&builder, "Report: %v", tc.report)
+            fmt.sbprintfln(&builder, "Minimal Report: %v", tc.report)
         }
     }
+
+    // Statistics
+    fmt.sbprintln(&builder, "Statistics:")
+    fmt.sbprintfln(&builder, "Generation duration : %v", tc.generation_duration)
+    fmt.sbprintfln(&builder, "Shrinking duration  : %v", tc.shrinking_duration)
+    fmt.sbprintfln(&builder, "Shrinking iterations: %v", tc.shrinking_iterations)
+    fmt.sbprintfln(&builder, "Considered attempts : %v", tc.considered_attempts)
 
     return strings.to_string(builder)
 }
