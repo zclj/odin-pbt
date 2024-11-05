@@ -6,8 +6,8 @@ import "core:log"
 import "core:time"
 import "core:strings"
 
-check_property :: proc(property: Property, number_of_tests: u64 = 100, seed: u64 = 0) -> Test_Context {
-    tc := make_context(number_of_tests, seed)
+check_property :: proc(property: Property, number_of_tests: u64 = 100, seed: u64 = 0, use_cache: bool = false) -> Test_Context {
+    tc := make_context(number_of_tests, seed, use_cache)
     tc.property = property
 
     check(&tc)

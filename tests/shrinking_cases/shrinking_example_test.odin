@@ -46,6 +46,31 @@ maps_of_specific_key_value :: proc(t: ^testing.T) {
 }
 
 @(test)
+maps_of_specific_key_value_cached :: proc(t: ^testing.T) {
+    specific_map_value := proc(test: ^pbt.Test_Case) -> bool {
+        value := pbt.draw(
+            test, pbt.maps(pbt.strings_alpha_numeric(1, 2), pbt.integers(0, 255), 1, 5))
+
+        log.debugf("property called with: %v", value)
+
+        pbt.make_test_report(test, "Failing example: %v", value)
+
+        return !(value["a"] == 10)
+    }
+
+    ctx := pbt.check_property(specific_map_value, 1_000_000, 11041760626551297113, true)
+    defer pbt.delete_context(ctx)
+
+    testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
+    testing.expect_value(t, ctx.failed, true)
+    expect_equal_slices(t, ctx.result[:], []u64{1, 1, 36, 0, 10, 0})
+
+    // Make sure we don't make shrinking worse
+    testing.expect_value(t, ctx.shrinking_iterations, 2)
+    testing.expect_value(t, ctx.considered_attempts, 103)
+}
+
+@(test)
 maps_of_specific_boundary_value :: proc(t: ^testing.T) {
     map_boundary_value := proc(test: ^pbt.Test_Case) -> bool {
         min_size := pbt.draw(test, pbt.integers(1, 10))

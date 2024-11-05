@@ -41,7 +41,7 @@ main :: proc() {
     }
 
     // Check the property for a max of 10 000 examples
-    test_context := pbt.check_property(list_is_sorted, 10000)
+    test_context := pbt.check_property(list_is_sorted, 10000, use_cache = true)
 
     // Print the report.
     fmt.println(pbt.build_report(test_context))
