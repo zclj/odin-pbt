@@ -10,11 +10,10 @@ shrinking_do_not_break :: proc(t: ^testing.T) {
     property := proc(test: ^pbt.Test_Case) -> bool {
         fake_result := pbt.draw(test, pbt.lists(pbt.integers(0, 1_000_000), 0, 100))
 
-        property_ctx := pbt.make_context()
+        property_ctx := pbt.make_context(proc(test: ^pbt.Test_Case) -> bool { return true })
         defer pbt.delete_context(property_ctx)
 
         property_ctx.result = slice.clone_to_dynamic(fake_result[:])
-        property_ctx.property = proc(test: ^pbt.Test_Case) -> bool { return true }
 
         pbt.shrink(&property_ctx)
 
@@ -36,8 +35,8 @@ shrink_remove_blocks :: proc(t: ^testing.T) {
         return !(len(attempt) >= 4 && (attempt[2] + attempt[3]) > 106 && attempt[2] > 18 && attempt[3] > 28)
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {123, 25, 393, 58, 67, 90, 5, 3}
 
     pbt.shrink_remove_blocks(&tc)
@@ -59,8 +58,8 @@ shrink_remove_blocks_container_example :: proc(t: ^testing.T) {
                  attempt[5] == 0)     // <- Weighted stop for map keys
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {1, 1, 0, 0, 0, 1, 1, 36, 0, 10, 0}
 
     pbt.shrink_remove_blocks(&tc)
@@ -77,8 +76,8 @@ shrink_zero_blocks :: proc(t: ^testing.T) {
         return !(attempt[1] == 0 && attempt[3] > 0)
     }
 
-    tc := pbt.make_context()
-    tc.property = fail_first_zero
+    tc := pbt.make_context(fail_first_zero)
+
     tc.result   = {34, 67, 89, 129}
 
     pbt.shrink_zero_blocks(&tc)
@@ -94,8 +93,8 @@ shrink_zero_blocks_different_sizes :: proc(t: ^testing.T) {
         return !(attempt[0] == 0 && attempt[1] == 0 && attempt[2] > 0)
     }
 
-    tc := pbt.make_context()
-    tc.property = fail_first_zero
+    tc := pbt.make_context(fail_first_zero)
+
     tc.result   = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 
     pbt.shrink_zero_blocks(&tc)
@@ -111,8 +110,8 @@ shrink_reduce :: proc(t: ^testing.T) {
         return !(attempt[2] > 50)
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {123, 25, 393, 4,}
 
     pbt.shrink_reduce(&tc)
@@ -128,8 +127,8 @@ shrink_reduce_dependant_values :: proc(t: ^testing.T) {
         return !(attempt[2] > 50 && attempt[3] > 50 && attempt[0] > attempt [3])
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {123, 25, 393, 58, 67, 90, 5, 3}
 
     pbt.shrink_reduce(&tc)
@@ -145,8 +144,8 @@ shrink_reduce_should_not_pass_boundary :: proc(t: ^testing.T) {
         return !((attempt[2] + attempt[3]) > 106)
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {123, 25, 393, 58, 0, 0, 0, 0}
 
     pbt.shrink_reduce(&tc)
@@ -162,8 +161,8 @@ shrink_reduce_should_not_shrink_minimal_value :: proc(t: ^testing.T) {
         return !(attempt[2] > 50 && attempt[3] > 50 && attempt[0] > attempt [3])
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {52, 0, 51, 51, 0, 0, 0, 0}
 
     pbt.shrink_reduce(&tc)
@@ -179,8 +178,8 @@ shrink_sort :: proc(t: ^testing.T) {
         return !(attempt[2] > 50 && attempt[3] > 50 && attempt[0] > attempt [3])
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {123, 25, 393, 58, 67, 90, 5, 3}
 
     pbt.shrink_sort(&tc)
@@ -196,8 +195,8 @@ shrink_redistribute :: proc(t: ^testing.T) {
         return !((attempt[2] + attempt[3]) > 106 && attempt[2] > 18 && attempt[3] > 28)
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {0, 0, 78, 29, 0, 0, 0, 0}
 
     pbt.shrink_redistribute(&tc, tc.result[:])
@@ -213,8 +212,8 @@ shrink_swap_larger :: proc(t: ^testing.T) {
         return !((attempt[2] + attempt[3]) > 106 && attempt[2] > 18 && attempt[3] > 28)
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {1, 2, 78, 29, 0, 0, 0, 0}
 
     defer delete(tc.result)
@@ -231,8 +230,8 @@ shrink_swap_don_not_swap_ordered :: proc(t: ^testing.T) {
         return !((attempt[2] + attempt[3]) > 106 && attempt[2] > 18 && attempt[3] > 28)
     }
 
-    tc := pbt.make_context()
-    tc.property = property
+    tc := pbt.make_context(property)
+
     tc.result   = {1, 2, 29, 78, 0, 0, 0, 0}
 
     defer delete(tc.result)

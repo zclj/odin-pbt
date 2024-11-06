@@ -16,9 +16,8 @@ check_passing_property :: proc(t: ^testing.T) {
         return value >= 0
     }
 
-    tc := pbt.make_context()
-    tc.property = property_fn
-        
+    tc := pbt.make_context(property_fn)
+
     pbt.check(&tc)
 
     expected := []u64{}
@@ -39,9 +38,8 @@ check_respects_number_of_tests :: proc(t: ^testing.T) {
         return value >= 0
     }
 
-    tc := pbt.make_context()
-    tc.property = property_fn
-            
+    tc := pbt.make_context(property_fn)
+
     pbt.check(&tc)
 
     expected := []u64{}
@@ -56,18 +54,18 @@ check_respects_number_of_tests :: proc(t: ^testing.T) {
 @(test)
 with_report :: proc(t: ^testing.T) {
     rand.reset(123456789)
-    
+
     property_fn := proc(test: ^pbt.Test_Case) -> bool {
         value := pbt.draw(test, u8s())
-                
+
         pbt.make_test_report(test, "Reported %v", value)
         return !(value > 0)
     }
 
-    tc := pbt.make_context()
-    tc.property = property_fn
+    tc := pbt.make_context(property_fn)
+
     defer pbt.delete_context(tc)
-    
+
     pbt.check(&tc)
 
     testing.expect_value(t, tc.report, "Reported 1")
@@ -88,14 +86,14 @@ check :: proc(t: ^testing.T) {
 
             return res
         }
-        
+
         even_typed := pbt.satisfy(
             pbt.integers(0, 100),
             proc(arg: u64) -> bool {
                 return arg % 2 == 0
             })
         even_value,_ := pbt.draw(test, even_typed)
-        
+
         scaled_typed := pbt.mapping(
             u8s(),
             proc(arg: u8) -> int {
@@ -108,14 +106,13 @@ check :: proc(t: ^testing.T) {
         result := bad_add(int(even_value), scaled_value)
 
         oracle := int(even_value) + int(scaled_value)
-        
+
         return result == oracle
-        
+
     }
 
-    tc := pbt.make_context()
-    tc.property = property_fn
-            
+    tc := pbt.make_context(property_fn)
+
     pbt.check(&tc)
 
     expected := []u64{12, 29}
@@ -123,7 +120,7 @@ check :: proc(t: ^testing.T) {
 
     expect_equal_slices(t, actual, expected)
     testing.expect_value(t, tc.failed, true)
-    
+
     delete(tc.result)
 }
 
@@ -135,12 +132,12 @@ lists_property :: proc(t: ^testing.T) {
         bad_sort := proc(xs: []u8) -> []u8 {
             sorted := slice.clone_to_dynamic(xs[:])
             defer delete(sorted)
-            
+
             slice.sort(sorted[:])
 
             result: [dynamic]u8
             defer delete(result)
-            
+
             if len(xs) > 5 {
                 for x in sorted[:] {
                     if x < 10 {
@@ -156,7 +153,7 @@ lists_property :: proc(t: ^testing.T) {
 
         list := pbt.draw(
             test, pbt.lists(u8s(), 0, 100))
-                
+
         //test.report = fmt.aprintf("Sorting with: %v", list)
         result := bad_sort(list[:])
 
@@ -165,15 +162,14 @@ lists_property :: proc(t: ^testing.T) {
         return slice.equal(result, list)
     }
 
-    tc := pbt.make_context()
-    tc.property = property_fn
-        
+    tc := pbt.make_context(property_fn)
+
     pbt.check(&tc)
 
     expected := []u64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 10, 0}
     actual   := tc.result[:]
 
     expect_equal_slices(t, actual, expected)
-    
+
     delete(tc.result)
 }

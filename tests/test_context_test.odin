@@ -7,14 +7,14 @@ import "../pbt"
 
 @(test)
 make_default_context :: proc(t: ^testing.T) {
-    ctx := pbt.make_context()
+    ctx := pbt.make_context(proc(tc: ^pbt.Test_Case) -> bool { return true})
 
     testing.expect_value(t, ctx.test_n, 100)
 }
 
 @(test)
 make_context :: proc(t: ^testing.T) {
-    ctx := pbt.make_context(34, 123)
+    ctx := pbt.make_context(proc(tc: ^pbt.Test_Case) -> bool { return true}, 34, 123)
 
     testing.expect_value(t, ctx.test_n, 34)
     testing.expect_value(t, ctx.seed, 123)

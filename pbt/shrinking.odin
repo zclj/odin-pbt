@@ -4,6 +4,7 @@ import "core:slice"
 import "core:log"
 
 shrink :: proc(tc: ^Test_Context) {
+    assert(tc.property != nil, "Property must be set, but is nil")
     assert(tc.shrinking_iterations == 0)
 
     improved := true
@@ -125,10 +126,8 @@ shrink_reduce :: proc(tc: ^Test_Context) {
     defer delete(new_attempt)
 
     if !consider(tc, tc.result[:]) {
-        // If we do not fail with the sequence, it's 'broken'
-        //  - Is this a valid scenario, or an assert?
         // TODO: Investigate the appropriate action
-        log.warn("Input to reduce do not fail!")
+        // log.warn("Input to reduce do not fail!")
         return
     }
     

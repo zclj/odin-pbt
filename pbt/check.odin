@@ -7,8 +7,9 @@ import "core:time"
 import "core:strings"
 
 check_property :: proc(property: Property, number_of_tests: u64 = 100, seed: u64 = 0, use_cache: bool = false) -> Test_Context {
-    tc := make_context(number_of_tests, seed, use_cache)
-    tc.property = property
+    assert(property != nil)
+
+    tc := make_context(property, number_of_tests, seed, use_cache)
 
     check(&tc)
 

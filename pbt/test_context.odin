@@ -40,7 +40,7 @@ Simple_Cache :: struct {
     results:  [dynamic]bool,
 }
 
-make_context :: proc(number_of_tests: u64 = 100, seed: u64 = 0, use_cache: bool = false, allocator := context.allocator) -> Test_Context {
+make_context :: proc(property: Property, number_of_tests: u64 = 100, seed: u64 = 0, use_cache: bool = false, allocator := context.allocator) -> Test_Context {
     assert(number_of_tests > 0)
 
     new_seed: u64
@@ -53,6 +53,7 @@ make_context :: proc(number_of_tests: u64 = 100, seed: u64 = 0, use_cache: bool 
     rand.reset(new_seed)
         
     return Test_Context {
+        property  = property,
         test_n    = number_of_tests,
         result    = make([dynamic]u64, allocator),
         seed      = new_seed,
