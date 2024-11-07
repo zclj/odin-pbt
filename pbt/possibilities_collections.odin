@@ -23,6 +23,9 @@ lists :: proc(elements: Possibility($I, $T), min_size: u64, max_size: u64) -> Po
         input = list,
         produce = proc(test_case: ^Test_Case, list: Lists(I, T)) -> []T {
             result := make([dynamic]T, 0, int(list.max_size), context.temp_allocator)
+
+            list_group_id := begin_choice_group(test_case, .List)
+            defer end_choice_group(test_case, list_group_id)
             for {
                 if len(result) < int(list.min_size) {
                     forced_choice(test_case, 1)

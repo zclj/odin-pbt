@@ -70,6 +70,7 @@ Group_Label :: enum u8 {
     Integer,
     String,
     Map,
+    List,
 }
 
 begin_choice_group :: proc(test: ^Test_Case, label_id: Group_Label = .None) -> Group_Id {
@@ -92,6 +93,7 @@ group_label_to_string :: proc(label: Group_Label) -> string {
     case .Weighted: label_str = "Weighted"
     case .Forced: label_str = "Forced"
     case .Map: label_str = "Map"
+    case .List: label_str = "List"
     }
 
     return label_str
