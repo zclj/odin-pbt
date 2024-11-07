@@ -72,6 +72,12 @@ check :: proc(tc: ^Test_Context) {
 
 }
 
+replay_result :: proc(tc: Test_Context) {
+    test := for_choices(tc.result[:], context.temp_allocator)
+
+    tc.property(&test)
+}
+
 main :: proc() {
 
     logger := log.create_console_logger(lowest = .Debug)
