@@ -13,11 +13,28 @@ Satisfy :: struct($Input, $Pos: typeid) {
     f: proc(Pos) -> bool,
 }
 
-satisfy:: proc(possibility: Possibility($I, $T), f: proc(T) -> bool) -> Satisfy(I, T) {
-    return Satisfy(I, T) {
+satisfy:: proc(possibility: Possibility($I, $T), f: proc(T) -> bool) -> Possibility(Satisfy(I, T), T) {
+    satisfy_input := Satisfy(I, T) {
         pos = possibility,
         f = f,
     }
+
+    pos := Possibility(Satisfy(I, T), T) {
+        input   = satisfy_input,
+        produce = proc(test_case: ^Test_Case, satisfy: Satisfy(I, T)) -> T {
+            for _ in 0..<4 {
+                candidate := draw_value(test_case, satisfy.pos)
+                if satisfy.f(candidate) {
+                    return candidate
+                }
+            }
+
+            test_case.status = .Invalid
+            return T {}
+        },
+    }
+
+    return pos
 }
 
 ////
@@ -28,11 +45,23 @@ Map :: struct($Input, $Pos, $Ret: typeid) {
     f: proc(Pos) -> Ret,
 }
 
-mapping :: proc(possibility: Possibility($I, $T), f: proc(T) -> $U) -> Map(I, T, U) {
-    return Map(I, T, U) {
+mapping :: proc(possibility: Possibility($I, $T), f: proc(T) -> $U) -> Possibility(Map(I, T, U), U) {
+    mapping_input := Map(I, T, U) {
         pos = possibility,
         f = f,
     }
+
+    pos := Possibility(Map(I, T, U), U) {
+        input = mapping_input,
+        produce = proc(test_case: ^Test_Case, mapping_input: Map(I, T, U)) -> U {
+            value: T = draw_value(test_case, mapping_input.pos)
+            mapped := mapping_input.f(value)
+
+            return mapped
+        },
+    }
+
+    return pos
 }
 
 ////
@@ -43,11 +72,25 @@ Bind :: struct($BInput, $Input, $Pos, $Val: typeid) {
     f: proc(Pos) -> Possibility(Input, Val),
 }
 
-bind :: proc(possibility: Possibility($B, $T), f: proc(T) -> Possibility($I, $U)) -> Bind(B, I, T, U) {
-    return Bind(B, I, T, U) {
+bind :: proc(possibility: Possibility($B, $T), f: proc(T) -> Possibility($I, $U)) -> Possibility(Bind(B, I, T, U), U) {
+
+    binding := Bind(B, I, T, U) {
         pos = possibility,
         f = f,
     }
+
+    pos := Possibility(Bind(B, I, T, U), U) {
+        input = binding,
+        produce = proc(test_case: ^Test_Case, binding: Bind(B, I, T, U)) -> U {
+            inner := draw_value(test_case, binding.pos)
+            bound_pos := binding.f(inner)
+            bound_value := draw_value(test_case, bound_pos)
+
+            return bound_value
+        },
+    }
+
+    return pos
 }
 
 ////////////////////////////////////////
@@ -62,7 +105,7 @@ One_Of :: struct($I, $T: typeid) {
 
 one_of :: proc(one_of: []Possibility($I, $T)) -> Possibility(One_Of(I, T), T) {
     assert(len(one_of) >= 2)
-    
+
     elements := slice.clone_to_dynamic(one_of, context.temp_allocator)
     one_ofs := One_Of(I, T) {
         elements = elements,
@@ -116,17 +159,17 @@ frequency :: proc(fs: []Frequency($I, $V)) -> Possibility(Frequencies(I, V), V) 
         append(&elements, element)
         total += u64(f.frequency)
     }
-    
+
     fq := Frequencies(I, V) {
         freqs = elements,
         total = total,
     }
-    
+
     pos := Possibility(Frequencies(I, V), V) {
         input = fq,
         produce = proc(test_case: ^Test_Case, fs: Frequencies(I, V)) -> V {
             selected_range := choice(test_case, fs.total)
-            
+
             selected: Frequency(I, V)
             for f in fs.freqs {
                 if f.range_start <= selected_range && f.range_end >= selected_range {
@@ -134,7 +177,7 @@ frequency :: proc(fs: []Frequency($I, $V)) -> Possibility(Frequencies(I, V), V) 
                     break
                 }
             }
-            
+
             return draw(test_case, selected.possibility)
         },
     }

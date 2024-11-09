@@ -13,12 +13,12 @@ import "../pbt"
 satisfies_draw :: proc(t: ^testing.T) {
     odd_draws := proc(test: ^pbt.Test_Case) -> bool {
         
-        value, success := pbt.draw(
+        value := pbt.draw(
             test, pbt.satisfy(pbt.integers(0, 100), proc(x: u64) -> bool { return x % 2 == 1 }))
         
         pbt.make_test_report(test, "Value: %v is not even", value)
         
-        return !success || value % 2 == 1
+        return value % 2 == 1
     }
     
     tc := pbt.check_property(odd_draws, DEFAULT_TEST_N)

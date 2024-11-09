@@ -92,7 +92,7 @@ check :: proc(t: ^testing.T) {
             proc(arg: u64) -> bool {
                 return arg % 2 == 0
             })
-        even_value,_ := pbt.draw(test, even_typed)
+        even_value := pbt.draw(test, even_typed)
 
         scaled_typed := pbt.mapping(
             u8s(),
