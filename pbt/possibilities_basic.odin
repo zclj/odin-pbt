@@ -172,18 +172,9 @@ strings_utf8 :: proc(min_size: u64, max_size: u64, min_utf8: u32 = 0, max_utf8: 
         input = str,
         produce = proc(test_case: ^Test_Case, str: Strings_UTF8) -> string {
             builder := strings.builder_make(context.temp_allocator)
-            rune_count: u64
+            rune_count: int
             
-            for {
-                if rune_count < str.min_size {
-                    forced_choice(test_case, 1)
-                } else if rune_count + 1 >= str.max_size {
-                    forced_choice(test_case, 0)
-                    break
-                } else if !weighted(test_case, 0.9) {
-                    break
-                }
-                
+            for more(test_case, rune_count, str.min_size, str.max_size){
                 val := draw(test_case, integers(i64(str.min_utf8), i64(str.max_utf8)))
                 rune_count += 1
 

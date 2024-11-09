@@ -202,8 +202,8 @@ stateful_map_db :: proc(t: ^testing.T) {
         []u64{1, 0, 1, 0, 0, 1, 1, 0, 65, 1, 0, 0, 65})
 
     // Make sure we don't make shrinking worse
-    // testing.expect_value(t, ctx.shrinking_iterations, 3)
-    // testing.expect_value(t, ctx.considered_attempts, 827)
+    testing.expect_value(t, ctx.shrinking_iterations, 3)
+    testing.expect_value(t, ctx.considered_attempts, 827)
 }
 
 @(test)
@@ -248,27 +248,12 @@ stateful_map_db_with_more_loop :: proc(t: ^testing.T) {
         report := strings.builder_make(context.temp_allocator)
         executed_ops:= make([dynamic]Operation, context.temp_allocator)
 
-        min_size := 2
-        max_size := 10
-        
-        for {
-            if len(executed_ops) < int(min_size) {
-                //log.debugf("Force draw map entry, min size")
-                pbt.forced_choice(test, 1)
-            } else if len(executed_ops) + 1 >= int(max_size) {
-                //log.debugf("Force stop draw map entry, max size")
-                pbt.forced_choice(test, 0)
-                break
-            } else if !pbt.weighted(test, 0.9) {
-                //log.debugf("Weighted stop draw map entry")
-                break
-            }
-
+        for pbt.more(test, len(executed_ops), 2, 10) {
             // If we got here we should do another op
             operation_enum := pbt.draw(test, pbt.integers(0, len(Operation) - 1))
             operation := Operation(operation_enum)
             append(&executed_ops, operation)
-            
+
             // Call the function we want to test
             switch operation {
             case .Add: {
@@ -277,14 +262,14 @@ stateful_map_db_with_more_loop :: proc(t: ^testing.T) {
                 person := Person { name = person_name, age = person_age}
 
                 fmt.sbprintf(&report, "Add: %v", person)
-                
+
                 add_person(db, person)
             }
             case .Delete: {
                 person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
 
                 fmt.sbprintf(&report, "Delete: %v", person_name)
-                
+
                 delete_person(db, person_name)
             }
             case: {
@@ -295,7 +280,7 @@ stateful_map_db_with_more_loop :: proc(t: ^testing.T) {
 
             fmt.sbprint(&report, " | ")
         }
-        
+
         // Make a report for better understanding
         pbt.make_test_report(test, "Operations: [%v]", strings.to_string(report))
 
@@ -319,8 +304,8 @@ stateful_map_db_with_more_loop :: proc(t: ^testing.T) {
         []u64{1, 0, 1, 1, 0, 65, 1, 0, 1, 0, 0, 65, 0})
 
     // Make sure we don't make shrinking worse
-    // testing.expect_value(t, ctx.shrinking_iterations, 3)
-    // testing.expect_value(t, ctx.considered_attempts, 827)
+    testing.expect_value(t, ctx.shrinking_iterations, 2)
+    testing.expect_value(t, ctx.considered_attempts, 543)
 }
 
 @(test)
@@ -359,7 +344,7 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
     DeleteOp :: struct {
         name: string,
     }
-    
+
     Operation_Data :: union {
         AddOp,
         DeleteOp,
@@ -377,7 +362,7 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
 
         report := strings.builder_make(context.temp_allocator)
         executed_ops:= make([dynamic]Operation_Data, context.temp_allocator)
-        
+
         operations := pbt.draw(
             test,
             pbt.lists(
@@ -391,41 +376,39 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
                             produce = proc(
                                 test: ^pbt.Test_Case,
                                 operation: Operation) -> Operation_Data {
-                                switch operation {
-                                case .Add: {
-                                    person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
-                                    person_age  := u8(pbt.draw(test, pbt.integers(0, 120)))
-                                    person := Person { name = person_name, age = person_age}
+                                    switch operation {
+                                    case .Add: {
+                                        person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+                                        person_age  := u8(pbt.draw(test, pbt.integers(0, 120)))
+                                        person := Person { name = person_name, age = person_age}
 
-                                    return AddOp { person = person}
-                                    
-                                }
-                                case .Delete: {
-                                    person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+                                        return AddOp { person = person}
 
-                                    //fmt.sbprintf(&report, "Delete: %v", person_name)
-                                    
-                                    return DeleteOp { name = person_name }
-                                }
-                                case: {
-                                    fmt.println("Faulty draw: ", operation)
-                                    panic("Faulty draw")
-                                }
-                                }
+                                    }
+                                    case .Delete: {
+                                        person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+
+                                        //fmt.sbprintf(&report, "Delete: %v", person_name)
+
+                                        return DeleteOp { name = person_name }
+                                    }
+                                    case: {
+                                        fmt.println("Faulty draw: ", operation)
+                                        panic("Faulty draw")
+                                    }
+                                    }
                                 },
                         }
-                        
-                            return pos
+
+                        return pos
                     },
                 ),
                 2, 10),
         )
 
-        //log.infof("Operation mapping: %v", the_thing)
-
         for operation_data, idx in operations {
             append(&executed_ops, operation_data)
-            
+
             // Call the function we want to test
             switch op in operation_data {
             case AddOp: {
@@ -436,25 +419,22 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
                 fmt.sbprintf(&report, "Delete: %v", op.name)
                 delete_person(db, op.name)
             }
-                
+
             }
             if idx < len(operations) - 1 {
                 fmt.sbprint(&report, " | ")
             }
-        }            
-            // Call the function we want to test
-            
+        }
 
-            fmt.sbprint(&report, " | ")
-    
-        
+        fmt.sbprint(&report, " | ")
+
         // Make a report for better understanding
         pbt.make_test_report(test, "Operations: [%v]", strings.to_string(report))
 
         // Check that the sorted lists are equal
         return !(len(db) == 2)
     }
-    
+
     ctx := pbt.check_property(stateful_db, DEFAULT_TEST_N, 12503090707380450584)
     defer pbt.delete_context(ctx)
 
@@ -468,7 +448,6 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
         []u64{1, 0, 1, 1, 0, 65, 1, 0, 1, 0, 0, 65, 0})
 
     // Make sure we don't make shrinking worse
-    // testing.expect_value(t, ctx.shrinking_iterations, 3)
-    // testing.expect_value(t, ctx.considered_attempts, 827)
+    testing.expect_value(t, ctx.shrinking_iterations, 2)
+    testing.expect_value(t, ctx.considered_attempts, 568)
 }
-
