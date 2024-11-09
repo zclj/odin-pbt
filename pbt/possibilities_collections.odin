@@ -36,7 +36,9 @@ lists :: proc(elements: Possibility($I, $T), min_size: u64, max_size: u64) -> Po
                     break
                 }
 
+                list_element_group_id := begin_choice_group(test_case, .List_Element)
                 val := draw(test_case, list.elements)
+                end_choice_group(test_case, list_element_group_id)
                 append(&result, val)
             }
 
