@@ -138,6 +138,13 @@ make_test_report :: proc(test: ^Test_Case, format: string, args: ..any, allocato
 }
 
 ////
+// Drawing values
+
+draw :: proc(test: ^Test_Case, pos: Possibility($I, $V)) -> V {
+    return pos.produce(test, pos.input)
+}
+
+////
 // Choices
 
 for_choices :: proc(prefix: []u64, allocator := context.temp_allocator) -> Test_Case {

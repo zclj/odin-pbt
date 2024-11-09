@@ -23,7 +23,7 @@ satisfy:: proc(possibility: Possibility($I, $T), f: proc(T) -> bool) -> Possibil
         input   = satisfy_input,
         produce = proc(test_case: ^Test_Case, satisfy: Satisfy(I, T)) -> T {
             for _ in 0..<4 {
-                candidate := draw_value(test_case, satisfy.pos)
+                candidate := draw(test_case, satisfy.pos)
                 if satisfy.f(candidate) {
                     return candidate
                 }
@@ -54,7 +54,7 @@ mapping :: proc(possibility: Possibility($I, $T), f: proc(T) -> $U) -> Possibili
     pos := Possibility(Map(I, T, U), U) {
         input = mapping_input,
         produce = proc(test_case: ^Test_Case, mapping_input: Map(I, T, U)) -> U {
-            value: T = draw_value(test_case, mapping_input.pos)
+            value: T = draw(test_case, mapping_input.pos)
             mapped := mapping_input.f(value)
 
             return mapped
@@ -82,9 +82,9 @@ bind :: proc(possibility: Possibility($B, $T), f: proc(T) -> Possibility($I, $U)
     pos := Possibility(Bind(B, I, T, U), U) {
         input = binding,
         produce = proc(test_case: ^Test_Case, binding: Bind(B, I, T, U)) -> U {
-            inner := draw_value(test_case, binding.pos)
+            inner := draw(test_case, binding.pos)
             bound_pos := binding.f(inner)
-            bound_value := draw_value(test_case, bound_pos)
+            bound_value := draw(test_case, bound_pos)
 
             return bound_value
         },
