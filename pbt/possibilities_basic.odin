@@ -2,6 +2,8 @@ package pbt
 
 import "core:math"
 
+DEFAULT_WEIGHT : f32 : 0.9
+
 ////////////////////////////////////////
 // Possibilities
 
@@ -156,9 +158,10 @@ Strings_UTF8 :: struct {
     max_size: u64,
     min_utf8: u32,
     max_utf8: u32,
+    weight  : f32,
 }
 
-strings_utf8 :: proc(min_size: u64, max_size: u64, min_utf8: u32 = 0, max_utf8: u32 = 0x10FFFF) -> Possibility(Strings_UTF8, string) {
+strings_utf8 :: proc(min_size: u64, max_size: u64, min_utf8: u32 = 0, max_utf8: u32 = 0x10FFFF, weight: f32 = DEFAULT_WEIGHT) -> Possibility(Strings_UTF8, string) {
     assert(max_utf8 <= 0x10FFFF, "Outside UTF-8 range")
         
     str := Strings_UTF8 {
@@ -166,6 +169,7 @@ strings_utf8 :: proc(min_size: u64, max_size: u64, min_utf8: u32 = 0, max_utf8: 
         max_size = max_size,
         min_utf8 = min_utf8,
         max_utf8 = max_utf8,
+        weight   = weight,
     }
 
     pos := Possibility(Strings_UTF8, string) {
@@ -174,7 +178,7 @@ strings_utf8 :: proc(min_size: u64, max_size: u64, min_utf8: u32 = 0, max_utf8: 
             builder := strings.builder_make(context.temp_allocator)
             rune_count: int
             
-            for more(test_case, rune_count, str.min_size, str.max_size){
+            for more(test_case, rune_count, str.min_size, str.max_size, str.weight){
                 val := draw(test_case, integers(i64(str.min_utf8), i64(str.max_utf8)))
                 rune_count += 1
 

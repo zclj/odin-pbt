@@ -2,16 +2,7 @@ package pbt
 
 //import "core:log"
 
-////
-// Lists
-
-Lists :: struct($I, $T: typeid) {
-    elements: Possibility(I, T),
-    min_size: u64,
-    max_size: u64,
-}
-
-more :: proc(test_case: ^Test_Case, length: int, min_size: u64, max_size: u64) -> bool {
+more :: proc(test_case: ^Test_Case, length: int, min_size: u64, max_size: u64, weight: f32 = DEFAULT_WEIGHT) -> bool {
     more_items: bool
 
     if length < int(min_size) {
@@ -19,19 +10,30 @@ more :: proc(test_case: ^Test_Case, length: int, min_size: u64, max_size: u64) -
         more_items = true
     } else if length + 1 >= int(max_size) {
         forced_choice(test_case, 0)
-    } else if weighted(test_case, 0.9) {
+    } else if weighted(test_case, weight) {
         more_items = true
     }
 
     return more_items
 }
 
-lists :: proc(elements: Possibility($I, $T), min_size: u64, max_size: u64) -> Possibility(Lists(I, T), []T) {
+////
+// Lists
+
+Lists :: struct($I, $T: typeid) {
+    elements: Possibility(I, T),
+    min_size: u64,
+    max_size: u64,
+    weight  : f32,
+}
+
+lists :: proc(elements: Possibility($I, $T), min_size: u64, max_size: u64, weight: f32 = DEFAULT_WEIGHT) -> Possibility(Lists(I, T), []T) {
 
     list := Lists(I, T) {
         elements = elements,
         min_size = min_size,
         max_size = max_size,
+        weight   = weight,
     }
     
     pos := Possibility(Lists(I, T), []T) {
@@ -41,7 +43,8 @@ lists :: proc(elements: Possibility($I, $T), min_size: u64, max_size: u64) -> Po
 
             list_group_id := begin_choice_group(test_case, .List)
             defer end_choice_group(test_case, list_group_id)
-            for more(test_case, len(result), list.min_size, list.max_size) {
+
+            for more(test_case, len(result), list.min_size, list.max_size, list.weight) {
                 list_element_group_id := begin_choice_group(test_case, .List_Element)
                 val := draw(test_case, list.elements)
                 end_choice_group(test_case, list_element_group_id)
@@ -60,15 +63,17 @@ Maps :: struct($I, $T, $U, $V: typeid) {
     vals    : Possibility(U, V),
     min_size: u64,
     max_size: u64,
+    weight  : f32,
 }
 
-maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64, max_size: u64) -> Possibility(Maps(I, T, U, V), map[T]V) {
+maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64, max_size: u64, weight: f32 = DEFAULT_WEIGHT) -> Possibility(Maps(I, T, U, V), map[T]V) {
 
     map_input := Maps(I, T, U, V) {
         keys     = keys,
         vals     = vals,
         min_size = min_size,
         max_size = max_size,
+        weight   = weight,
     }
 
     pos := Possibility(Maps(I, T, U, V), map[T]V) {
@@ -78,7 +83,8 @@ maps :: proc(keys: Possibility($I, $T), vals: Possibility($U, $V), min_size: u64
 
             map_group_id := begin_choice_group(test_case, .Map)
             defer end_choice_group(test_case, map_group_id)
-            for more(test_case, len(result), map_input.min_size, map_input.max_size){
+
+            for more(test_case, len(result), map_input.min_size, map_input.max_size, map_input.weight){
                 // A duplicate key will not add to the length of the map and run the risk
                 //  of making us stuck. Therefor, if we cannot draw a non-existing key
                 //  the test is invalid.
