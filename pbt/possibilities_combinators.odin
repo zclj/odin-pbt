@@ -6,6 +6,28 @@ import "core:slice"
 // Combinators
 
 ////
+// Just
+
+Just :: struct($T: typeid) {
+    value: T,
+}
+
+just :: proc(value: $T) -> Possibility(Just(T), T) {
+    just_input := Just(T) {
+        value = value,
+    }
+
+    pos := Possibility(Just(T), T) {
+        input   = just_input,
+        produce = proc(test_case: ^Test_Case, just_input: Just(T)) -> T {
+            return just_input.value
+        }
+    }
+
+    return pos
+}
+
+////
 // Satisfy
 
 Satisfy :: struct($Input, $Pos: typeid) {
