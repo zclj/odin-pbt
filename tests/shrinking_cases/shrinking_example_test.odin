@@ -38,11 +38,11 @@ maps_of_specific_key_value :: proc(t: ^testing.T) {
 
     testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
     testing.expect_value(t, ctx.failed, true)
-    expect_equal_slices(t, ctx.result[:], []u64{1, 1, 36, 0, 10, 0})
+    expect_equal_slices(t, ctx.result[:], []u64{1, 1, 10, 0, 10, 0})
 
     // Make sure we don't make shrinking worse
     testing.expect_value(t, ctx.shrinking_iterations, 2)
-    testing.expect_value(t, ctx.considered_attempts, 191)
+    testing.expect_value(t, ctx.considered_attempts, 174)
 }
 
 @(test)
@@ -63,11 +63,11 @@ maps_of_specific_key_value_cached :: proc(t: ^testing.T) {
 
     testing.expect_value(t, ctx.report, "Failing example: map[a=10]")
     testing.expect_value(t, ctx.failed, true)
-    expect_equal_slices(t, ctx.result[:], []u64{1, 1, 36, 0, 10, 0})
+    expect_equal_slices(t, ctx.result[:], []u64{1, 1, 10, 0, 10, 0})
 
     // Make sure we don't make shrinking worse
     testing.expect_value(t, ctx.shrinking_iterations, 2)
-    testing.expect_value(t, ctx.considered_attempts, 103)
+    testing.expect_value(t, ctx.considered_attempts, 101)
 }
 
 @(test)
