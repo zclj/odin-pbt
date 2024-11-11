@@ -23,7 +23,7 @@ satisfies_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(odd_draws, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -42,7 +42,7 @@ mapping_draw :: proc(t: ^testing.T) {
 
     tc := pbt.check_property(multiplied, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -64,7 +64,7 @@ bind_draw :: proc(t: ^testing.T) {
 
     tc := pbt.check_property(multiplied, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -83,7 +83,7 @@ one_of_draw_input :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(draw_is_in_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -108,5 +108,5 @@ frequency_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(draw_is_in_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }

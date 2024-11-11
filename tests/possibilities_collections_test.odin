@@ -37,7 +37,7 @@ lists_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_and_length_are_in_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -72,5 +72,5 @@ maps_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(maps_are_in_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }

@@ -23,7 +23,7 @@ check_passing_property :: proc(t: ^testing.T) {
     expected := []u64{}
     actual   := tc.result[:]
 
-    expect_equal_slices(t, actual, expected)
+    pbt.expect_equal_slices(t, actual, expected)
 
     delete(tc.result)
 }
@@ -46,7 +46,7 @@ check_respects_number_of_tests :: proc(t: ^testing.T) {
     actual   := tc.result[:]
 
     testing.expect_value(t, u64(100), tc.tests_passed)
-    expect_equal_slices(t, actual, expected)
+    pbt.expect_equal_slices(t, actual, expected)
 
     delete(tc.result)
 }
@@ -118,7 +118,7 @@ check :: proc(t: ^testing.T) {
     expected := []u64{12, 29}
     actual   := tc.result[:]
 
-    expect_equal_slices(t, actual, expected)
+    pbt.expect_equal_slices(t, actual, expected)
     testing.expect_value(t, tc.failed, true)
 
     delete(tc.result)
@@ -169,7 +169,7 @@ lists_property :: proc(t: ^testing.T) {
     expected := []u64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 10, 0}
     actual   := tc.result[:]
 
-    expect_equal_slices(t, actual, expected)
+    pbt.expect_equal_slices(t, actual, expected)
 
     delete(tc.result)
 }

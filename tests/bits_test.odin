@@ -51,7 +51,7 @@ draw_bits_random_are_in_bit_range :: proc(t: ^testing.T) {
 
     tc := pbt.check_property(property_fn, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 @(test)
@@ -82,7 +82,7 @@ draw_bits_random_are_recorded :: proc(t: ^testing.T) {
 
     tc := pbt.check_property(property_fn, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -127,7 +127,7 @@ begin_and_end_marks_groups :: proc(t: ^testing.T) {
     testing.expect_value(t, group_1.end, 3)
     testing.expect_value(t, group_1.label_id, 5)
     // Group 1 data is same as drawn
-    expect_equal_slices(t, group_1_data, []u64{draw_1, draw_2})
+    pbt.expect_equal_slices(t, group_1_data, []u64{draw_1, draw_2})
 
     // Assert group 2
     testing.expect_value(t, group_id_2, pbt.Group_Id(1))
@@ -135,7 +135,7 @@ begin_and_end_marks_groups :: proc(t: ^testing.T) {
     testing.expect_value(t, group_2.end, 4)
     testing.expect_value(t, group_2.label_id, 9)
     // Group 2 data is same as drawn
-    expect_equal_slices(t, group_2_data, []u64{draw_3})
+    pbt.expect_equal_slices(t, group_2_data, []u64{draw_3})
 }
 
 @(test)
@@ -154,5 +154,5 @@ group_operations_are_zii :: proc(t: ^testing.T) {
     group_bits := pbt.get_group_bits(stream.recorded, pbt.Group_Id(3))
 
     testing.expect_value(t, group_outside, pbt.Group_Info {})
-    expect_equal_slices(t, group_bits, []u64{})
+    pbt.expect_equal_slices(t, group_bits, []u64{})
 }

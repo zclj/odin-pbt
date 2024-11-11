@@ -22,7 +22,7 @@ u8_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_are_in_u8_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -40,7 +40,7 @@ f32_draw_default_range :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_are_in_f32_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 @(test)
@@ -59,7 +59,7 @@ f32_draw_range :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_are_in_f32_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 @(test)
@@ -93,7 +93,7 @@ f64_draw_range :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_are_in_range, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -124,7 +124,7 @@ integers_between_min_max :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_are_between_min_max, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 @(test)
@@ -143,7 +143,7 @@ integers_negative_min_max :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(values_are_between_min_max, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -162,7 +162,7 @@ bools_with_zero_weight_are_false :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(bools_zero, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 @(test)
@@ -178,7 +178,7 @@ bools_with_one_weight_are_true :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(bools_zero, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 bool_distribution : [DEFAULT_TEST_N]bool
@@ -216,7 +216,7 @@ bools_are_distributed :: proc(t: ^testing.T) {
     testing.expect(t, false_count < 5150 && false_count > 4850, "False distribution outside range")
     testing.expect(t, true_count < 5150 && true_count > 4850, "True distribution outside range")
     
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 ////
@@ -244,7 +244,7 @@ strings_utf8_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(string_length_between_min_max, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 @(test)
@@ -273,7 +273,7 @@ strings_alpha_numeric_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(string_length_between_min_max, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }
 
 //import "core:fmt"
@@ -306,5 +306,5 @@ strings_alphabet_draw :: proc(t: ^testing.T) {
     
     tc := pbt.check_property(string_length_between_min_max, DEFAULT_TEST_N)
 
-    expect_property_passed(t, tc)
+    pbt.expect_property_passed(t, tc)
 }

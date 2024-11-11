@@ -21,7 +21,7 @@ just :: proc(value: $T) -> Possibility(Just(T), T) {
         input   = just_input,
         produce = proc(test_case: ^Test_Case, just_input: Just(T)) -> T {
             return just_input.value
-        }
+        },
     }
 
     return pos

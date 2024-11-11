@@ -30,5 +30,5 @@ lists :: proc(t: ^testing.T) {
     values := pbt.draw(&test, list_of_u8s)
             
     expected := []u8{50, 234, 93, 19, 160}
-    expect_equal_slices(t, values, expected)
+    pbt.expect_equal_slices(t, values, expected)
 }

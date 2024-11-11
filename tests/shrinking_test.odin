@@ -25,7 +25,7 @@ shrinking_do_not_break :: proc(t: ^testing.T) {
     defer pbt.delete_context(ctx)
 
     testing.expect_value(t, ctx.failed, false)
-    expect_equal_slices(t, ctx.result[:], []u64{})
+    pbt.expect_equal_slices(t, ctx.result[:], []u64{})
 }
 
 @(test)
@@ -42,7 +42,7 @@ shrink_remove_blocks :: proc(t: ^testing.T) {
     pbt.shrink_remove_blocks(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{123, 25, 393, 58})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{123, 25, 393, 58})
 }
 
 @(test)
@@ -65,7 +65,7 @@ shrink_remove_blocks_container_example :: proc(t: ^testing.T) {
     pbt.shrink_remove_blocks(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{1, 1, 36, 0, 10, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{1, 1, 36, 0, 10, 0})
 }
 
 
@@ -83,7 +83,7 @@ shrink_zero_blocks :: proc(t: ^testing.T) {
     pbt.shrink_zero_blocks(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{34, 0, 0, 129})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{34, 0, 0, 129})
 }
 
 @(test)
@@ -100,7 +100,7 @@ shrink_zero_blocks_different_sizes :: proc(t: ^testing.T) {
     pbt.shrink_zero_blocks(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{0, 0, 3, 4, 5, 6, 7, 8, 9, 10})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{0, 0, 3, 4, 5, 6, 7, 8, 9, 10})
 }
 
 @(test)
@@ -117,7 +117,7 @@ shrink_reduce :: proc(t: ^testing.T) {
     pbt.shrink_reduce(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{0, 0, 51, 0,})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{0, 0, 51, 0,})
 }
 
 @(test)
@@ -134,7 +134,7 @@ shrink_reduce_dependant_values :: proc(t: ^testing.T) {
     pbt.shrink_reduce(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{52, 0, 51, 51, 0, 0, 0, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{52, 0, 51, 51, 0, 0, 0, 0})
 }
 
 @(test)
@@ -151,7 +151,7 @@ shrink_reduce_should_not_pass_boundary :: proc(t: ^testing.T) {
     pbt.shrink_reduce(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{0, 0, 107, 0, 0, 0, 0, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{0, 0, 107, 0, 0, 0, 0, 0})
 }
 
 @(test)
@@ -168,7 +168,7 @@ shrink_reduce_should_not_shrink_minimal_value :: proc(t: ^testing.T) {
     pbt.shrink_reduce(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{52, 0, 51, 51, 0, 0, 0, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{52, 0, 51, 51, 0, 0, 0, 0})
 }
 
 @(test)
@@ -185,7 +185,7 @@ shrink_sort :: proc(t: ^testing.T) {
     pbt.shrink_sort(&tc)
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{123, 25, 58, 67, 90, 393, 5, 3})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{123, 25, 58, 67, 90, 393, 5, 3})
 }
 
 @(test)
@@ -202,7 +202,7 @@ shrink_redistribute :: proc(t: ^testing.T) {
     pbt.shrink_redistribute(&tc, tc.result[:])
     defer delete(tc.result)
 
-    expect_equal_slices(t, tc.result[:], []u64{0, 0, 19, 88, 0, 0, 0, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{0, 0, 19, 88, 0, 0, 0, 0})
 }
 
 @(test)
@@ -220,7 +220,7 @@ shrink_swap_larger :: proc(t: ^testing.T) {
 
     pbt.shrink_swap(&tc)
 
-    expect_equal_slices(t, tc.result[:], []u64{1, 2, 29, 78, 0, 0, 0, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{1, 2, 29, 78, 0, 0, 0, 0})
 }
 
 @(test)
@@ -238,7 +238,7 @@ shrink_swap_don_not_swap_ordered :: proc(t: ^testing.T) {
 
     pbt.shrink_swap(&tc)
 
-    expect_equal_slices(t, tc.result[:], []u64{1, 2, 29, 78, 0, 0, 0, 0})
+    pbt.expect_equal_slices(t, tc.result[:], []u64{1, 2, 29, 78, 0, 0, 0, 0})
 }
 
 @(test)
@@ -256,7 +256,7 @@ swap_combinations :: proc(t: ^testing.T) {
     pbt.swap_combinations(choices[:], 1, &new_attempts)
 
     testing.expect_value(t, 1, len(new_attempts))
-    expect_equal_slices(t, new_attempts[0][:], []u64{1, 2, 3, 4})
+    pbt.expect_equal_slices(t, new_attempts[0][:], []u64{1, 2, 3, 4})
 }
 
 @(test)
