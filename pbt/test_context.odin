@@ -156,3 +156,10 @@ build_report :: proc(tc: Test_Context, allocator := context.allocator) -> string
 
     return strings.to_string(builder)
 }
+
+run_result :: proc(tc: Test_Context) -> bool {
+    // Create a test loaded with the current result
+    test := for_choices(tc.result[:], context.temp_allocator)
+
+    return tc.property(&test)
+}
