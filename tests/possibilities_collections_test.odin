@@ -51,7 +51,7 @@ maps_draw :: proc(t: ^testing.T) {
         max_size := min_size + range
         
         value := pbt.draw(
-            test, pbt.maps(pbt.strings_alpha_numeric(1, 50), pbt.integers(0, 255), min_size, max_size))
+            test, pbt.maps(pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 50), pbt.integers(0, 255), min_size, max_size))
         
         pbt.make_test_report(
             test, "Value: %v is not in range, length [%v, %v]", value, min_size, max_size)

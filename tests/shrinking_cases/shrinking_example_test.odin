@@ -24,7 +24,7 @@ expect_equal_slices :: proc(t: ^testing.T, actual, expected: $T/[]$E) where intr
 maps_of_specific_key_value :: proc(t: ^testing.T) {
     specific_map_value := proc(test: ^pbt.Test_Case) -> bool {
         value := pbt.draw(
-            test, pbt.maps(pbt.strings_alpha_numeric(1, 2), pbt.integers(0, 255), 1, 5))
+            test, pbt.maps(pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 2), pbt.integers(0, 255), 1, 5))
 
         log.debugf("property called with: %v", value)
 
@@ -49,7 +49,7 @@ maps_of_specific_key_value :: proc(t: ^testing.T) {
 maps_of_specific_key_value_cached :: proc(t: ^testing.T) {
     specific_map_value := proc(test: ^pbt.Test_Case) -> bool {
         value := pbt.draw(
-            test, pbt.maps(pbt.strings_alpha_numeric(1, 2), pbt.integers(0, 255), 1, 5))
+            test, pbt.maps(pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 2), pbt.integers(0, 255), 1, 5))
 
         log.debugf("property called with: %v", value)
 
@@ -78,7 +78,7 @@ maps_of_specific_boundary_value :: proc(t: ^testing.T) {
         max_size := min_size + range
 
         value := pbt.draw(
-            test, pbt.maps(pbt.strings_alpha_numeric(4, 20), pbt.integers(0, 255), min_size, max_size))
+            test, pbt.maps(pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 4, 20), pbt.integers(0, 255), min_size, max_size))
 
         pbt.make_test_report(test, "Failing example: %v", value)
 
@@ -156,7 +156,7 @@ stateful_map_db :: proc(t: ^testing.T) {
             op := Operation(operation)
             append(&executed_ops, op)
 
-            person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+            person_name := pbt.draw(test, pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 50))
             person_age  := u8(pbt.draw(test, pbt.integers(0, 120)))
 
             person := Person { name = person_name, age = person_age}
@@ -257,7 +257,7 @@ stateful_map_db_with_more_loop :: proc(t: ^testing.T) {
             // Call the function we want to test
             switch operation {
             case .Add: {
-                person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+                person_name := pbt.draw(test, pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 50))
                 person_age  := u8(pbt.draw(test, pbt.integers(0, 120)))
                 person := Person { name = person_name, age = person_age}
 
@@ -266,7 +266,7 @@ stateful_map_db_with_more_loop :: proc(t: ^testing.T) {
                 add_person(db, person)
             }
             case .Delete: {
-                person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+                person_name := pbt.draw(test, pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 50))
 
                 fmt.sbprintf(&report, "Delete: %v", person_name)
 
@@ -378,7 +378,7 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
                                 operation: Operation) -> Operation_Data {
                                     switch operation {
                                     case .Add: {
-                                        person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+                                        person_name := pbt.draw(test, pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 50))
                                         person_age  := u8(pbt.draw(test, pbt.integers(0, 120)))
                                         person := Person { name = person_name, age = person_age}
 
@@ -386,7 +386,7 @@ stateful_map_db_with_bind :: proc(t: ^testing.T) {
 
                                     }
                                     case .Delete: {
-                                        person_name := pbt.draw(test, pbt.strings_alpha_numeric(1, 50))
+                                        person_name := pbt.draw(test, pbt.strings_alphabet(pbt.ALPHA_NUMERIC, 1, 50))
 
                                         //fmt.sbprintf(&report, "Delete: %v", person_name)
 

@@ -89,7 +89,7 @@ main :: proc() {
         max_size := min_size + range
 
         value := draw(
-            test, maps(strings_alpha_numeric(4, 20), integers(0, 255), min_size, max_size))
+            test, maps(strings_alphabet(ALPHA_NUMERIC, 4, 20), integers(0, 255), min_size, max_size))
 
         make_test_report(
             test, "Value: %v is not in range, length [%v, %v]", value, min_size, max_size)

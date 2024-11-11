@@ -192,96 +192,35 @@ strings_utf8 :: proc(min_size: u64, max_size: u64, min_utf8: u32 = 0, max_utf8: 
     return pos
 }
 
-Strings_AN :: struct {
-    min_size: u64,
-    max_size: u64,
-}
-
-strings_alpha_numeric :: proc(min_size: u64, max_size: u64) -> Possibility(Strings_AN, string) {
-
-    str := Strings_AN {
-        min_size = min_size,
-        max_size = max_size,
-    }
-
-    pos := Possibility(Strings_AN, string) {
-        input = str,
-        produce = proc(test_case: ^Test_Case, str: Strings_AN) -> string {
-            builder := strings.builder_make(context.temp_allocator)
-            rune_count: u64
-
-            group_id := begin_choice_group(test_case, .String)
-            defer end_choice_group(test_case, group_id)
-            
-            for {
-                if rune_count < str.min_size {
-                    forced_choice(test_case, 1)
-                } else if rune_count + 1 >= str.max_size {
-                    forced_choice(test_case, 0)
-                    break
-                } else if !weighted(test_case, 0.9) {
-                    break
-                }
-
-                // 62 different options
-                char_choice := choice(test_case, 61)
-                
-                if char_choice <= 9 {
-                    // 0-9, 48-57  = 0-9
-                    char_choice += 48
-                } else if char_choice > 9 && char_choice <= 35 {
-                    // A-Z, 65-90  = 10-35
-                    char_choice += 55
-                } else if char_choice > 35 && char_choice <= 61 {
-                    // a-z, 97-122 = 36-61
-                    char_choice += 61
-                } else {
-                    panic("Alpha numberic choice is out of range")
-                }
-                                
-                rune_count += 1
-
-                strings.write_rune(&builder, rune(char_choice))
-            }
-
-            return strings.to_string(builder)
-        },
-    }
-
-    return pos
-}
+// Common alphabets
+ALPHA_NUMERIC :: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWQXYZ"
+ASCII_LETTERS :: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWQXYZ"
+DIGITS        :: "0123456789"
 
 Strings_Alphabet :: struct {
     alphabet: string,
     min_size: u64,
     max_size: u64,
+    weight  : f32,
 }
 
-strings_alphabet :: proc(alphabet: string, min_size: u64, max_size: u64) -> Possibility(Strings_Alphabet, string) {
+strings_alphabet :: proc(alphabet: string, min_size: u64, max_size: u64, weight: f32 = DEFAULT_WEIGHT) -> Possibility(Strings_Alphabet, string) {
 
     str := Strings_Alphabet {
         alphabet = alphabet,
         min_size = min_size,
         max_size = max_size,
+        weight   = weight,
     }
     
     pos := Possibility(Strings_Alphabet, string) {
         input = str,
         produce = proc(test_case: ^Test_Case, str: Strings_Alphabet) -> string {
             builder := strings.builder_make(context.temp_allocator)
-            rune_count: u64
+            rune_count: int
             
-            for {
-                if rune_count < str.min_size {
-                    forced_choice(test_case, 1)
-                } else if rune_count + 1 >= str.max_size {
-                    forced_choice(test_case, 0)
-                    break
-                } else if !weighted(test_case, 0.9) {
-                    break
-                }
-
-                // Choice an index in the alphabet
+            for more(test_case, rune_count, str.min_size, str.max_size, str.weight) {
+                // Chose an index in the alphabet
                 char_choice := choice(test_case, u64(len(str.alphabet) - 1))
 
                 char := str.alphabet[char_choice]
@@ -297,3 +236,4 @@ strings_alphabet :: proc(alphabet: string, min_size: u64, max_size: u64) -> Poss
 
     return pos
 }
+

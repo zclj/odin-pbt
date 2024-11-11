@@ -252,7 +252,7 @@ strings_alpha_numeric_draw :: proc(t: ^testing.T) {
     string_length_between_min_max := proc(test: ^pbt.Test_Case) -> bool {
         min_size := u64(pbt.draw(test, u8s()))
         max_size := min_size + 1 + u64(pbt.draw(test, u8s()))
-        value := pbt.draw(test, pbt.strings_alpha_numeric(min_size, max_size))
+        value := pbt.draw(test, pbt.strings_alphabet(pbt.ALPHA_NUMERIC, min_size, max_size))
 
         length := u64(strings.rune_count(value))
 
@@ -280,7 +280,6 @@ strings_alpha_numeric_draw :: proc(t: ^testing.T) {
 @(test)
 strings_alphabet_draw :: proc(t: ^testing.T) {
     string_length_between_min_max := proc(test: ^pbt.Test_Case) -> bool {
-        //alphabet := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWQXYZ"
         alphabet := "0123456789!#$%&'*+-/=^_`{|}~"
         
         min_size := u64(pbt.draw(test, u8s()))
@@ -309,22 +308,3 @@ strings_alphabet_draw :: proc(t: ^testing.T) {
 
     expect_property_passed(t, tc)
 }
-
-/*
-"""A strategy for generating email addresses as unicode strings. The
-    address format is specified in :rfc:`5322#section-3.4.1`. Values shrink
-    towards shorter local-parts and host domains.
-
-    If ``domains`` is given then it must be a strategy that generates domain
-    names for the emails, defaulting to :func:`~hypothesis.provisional.domains`.
-
-    This strategy is useful for generating "user data" for tests, as
-    mishandling of email addresses is a common source of bugs.
-    """
-    local_chars = string.ascii_letters + string.digits + "!#$%&'*+-/=^_`{|}~"
-    local_part = text(local_chars, min_size=1, max_size=64)
-    # TODO: include dot-atoms, quoted strings, escaped chars, etc in local part
-    return builds("{}@{}".format, local_part, domains).filter(
-        lambda addr: len(addr) <= 254
-    )"
-*/
